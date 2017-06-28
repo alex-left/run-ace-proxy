@@ -13,11 +13,11 @@ Also can connect to arenavision web, and extract acestream link.
 ``` ace [number of AV channel] ``` 
 
 # requirements
-- vlc
+- vlc (optional if you use it for kodi)
 - python 3
-- dryscrape library
+- dryscrape library (optional if you will use it only with url's)
 ``` pip3 install dryscrape```
-- acestream proxy server reacheable
+- acestream proxy server reacheable (see docker image in description)
 
 ### warning:
 probably you need more dependencies to install dryscrape (qt4, webkit, etc...)
