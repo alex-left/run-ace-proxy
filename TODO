@@ -1,0 +1,7 @@
+- set the default local aceproxy server reading it from an config/enviroment file (for example: /etc/ace.conf) to avoid set it 
+by parameter if you use a player in different machine than docker engine. 
+- get urls from more providers ¿suggestions? I only know arenavision
+- add more players? I only use VLC. 
+- investigate a way to send the stream to kodi directly avoiding the strm file generation (maybe by kodi's api?)
+- create an installer?
+- organize, improve and Beautify the code. 
