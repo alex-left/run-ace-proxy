@@ -14,6 +14,7 @@ Also can connect to arenavision web, and extract acestream link.
 
 # requirements
 - vlc (optional if you use it for kodi)
+https://www.videolan.org/vlc/
 - python 3
 - dryscrape library (optional if you will use it only with url's)
 ``` pip3 install dryscrape```
@@ -23,6 +24,13 @@ Also can connect to arenavision web, and extract acestream link.
 probably you need more dependencies to install dryscrape (qt4, webkit, etc...)
 more info:
 http://dryscrape.readthedocs.io/en/latest/installation.html
+
+# install
+- clone project
+``` git clone https://github.com/alex-left/run-ace-proxy ```
+- copy the program to PATH for more convenience
+``` cd run-ace-proxy && sudo cp ace.py /usr/bin/ace```
+- install optional dependencies (see requirements)
 
 # how use
 
