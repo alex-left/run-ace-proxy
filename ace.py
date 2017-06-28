@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
 #imports
-import sys, argparse, subprocess, socket, re
+import sys, argparse, subprocess, socket, re, os
 try:
     import dryscrape
 except:
-    print("Can't import dryscrape, please install it if you wan't run an arenavision channel")
+    print("Can't import dryscrape, please install it if you wan't run an arenavision channel directly")
 
 # parse arguments
 argparser = argparse.ArgumentParser(
     description="""Launch a acestream url with vlc from command line
-    using a custom acestream proxy""",
-    usage="$ ace (url | id | arenavision channel) [-s | --server proxyserver] ")
+    using a custom acestream proxy or generate a playable strm file""")
 
 argparser.add_argument("url",
                         help='''valid acestream id or url acestream, for example:
@@ -24,7 +23,12 @@ argparser.add_argument("-s","--server",
                         help='''aceproxy server with format: "server:port", for example:
                         "--server myaceproxyserver:8080" or "-s 192.168.1.25:8000"
                         by default is "127.0.0.1:8080"''',
-                        type=str, required=False, default="127.0.0.1:8080")
+                        type=str, required=False, default="127.0.0.1:8000")
+argparser.add_argument("-f","--file",
+                        help='''generate a playable strm file (useful for kodi)
+                        for example: "ace 13 -f /home/ubuntu/media/mystream.strm''',
+                        type=str, required=False)
+
 
 
 # variables
@@ -37,7 +41,25 @@ idpattern=re.compile('^([0-9]){1,2}$', re.IGNORECASE)
 linkpattern=re.compile('acestream://([0-9]|[a-z]){40,}', re.IGNORECASE)
 av_baseurl="https://arenavision.in/av"
 
+
 #begin program
+
+def filemode(url):
+    if argparser.parse_args().file:
+        filepath = argparser.parse_args().file
+        if os.path.isfile(filepath):
+            try:
+                if not filepath.endswith(".strm"):
+                    filepath = filepath + ".strm"
+                with open(filepath, 'w') as f:
+                    f.write(url)
+                sys.exit(0)
+            except Exception as e:
+                print(e)
+                print('''generation of strm file was failed''')
+                sys.exit(1)
+    else:
+        pass
 
 # test if aceproxy server is reacheable
 conntest = socket.socket()
@@ -72,10 +94,12 @@ if re.match(idpattern, url):
 if url.startswith("acestream://"):
     url=url.split("//")
     streamid=url[1]
-    url="http:// " + server[0] + ":" + str(server[1]) + "/" + streamid + "/stream.mp4"
+    url="http://" + server[0] + ":" + str(server[1])  + "/pid/" + streamid + "/stream.mp4"
+    filemode(url)
     subprocess.Popen(['setsid', player, url], stdin=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 elif re.match(urlpattern, url):
-        url="http:// " + server[0] + ":" + str(server[1]) + "/" + url + "/stream.mp4"
+        url="http://" + server[0] + ":" + str(server[1]) + "/pid/" + url + "/stream.mp4"
+        filemode(url)
         subprocess.Popen(['setsid', player, url], stdin=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 else:
     print('''ERROR, the url must be a valid acestream link, example: "ace acestream://r1oIk6lGyqEvE3BhJavj2goZTwDZUm9X7SMoAeL2"
