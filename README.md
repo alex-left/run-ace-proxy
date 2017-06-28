@@ -1,6 +1,6 @@
 # run-ace-proxy
 Nasty script to parse acestreams urls and play it in VLC or kodi with a local aceproxy server.
-tested in ubuntu and
+tested in ubuntu and debian systems
 
 # Description
 This is for run easily acestreams with VLC player or kodi aganist local proxy acestream server. 
