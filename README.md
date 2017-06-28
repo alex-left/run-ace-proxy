@@ -1,5 +1,6 @@
 # run-ace-proxy
 Nasty script to parse acestreams urls and play it in VLC or kodi with a local aceproxy server.
+tested in ubuntu and
 
 # Description
 This is for run easily acestreams with VLC player or kodi aganist local proxy acestream server. 
@@ -12,9 +13,11 @@ Also can connect to arenavision web, and extract acestream link.
 ``` ace [number of AV channel] ``` 
 
 # requirements
+- vlc
 - python 3
 - dryscrape library
 ``` pip3 install dryscrape```
+- acestream proxy server reacheable
 
 ### warning:
 probably you need more dependencies to install dryscrape (qt4, webkit, etc...)
