@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 #imports
-import sys, argparse, subprocess, socket, re, os
+import sys, argparse, subprocess, socket, re, os, configparser
 try:
     import dryscrape
 except:
     print("Can't import dryscrape, please install it if you wan't run an arenavision channel directly")
+
+
 
 # parse arguments
 argparser = argparse.ArgumentParser(
@@ -23,27 +25,23 @@ argparser.add_argument("-s","--server",
                         help='''aceproxy server with format: "server:port", for example:
                         "--server myaceproxyserver:8080" or "-s 192.168.1.25:8000"
                         by default is "127.0.0.1:8080"''',
-                        type=str, required=False, default="127.0.0.1:8000")
+                        type=str, required=False)
 argparser.add_argument("-f","--file",
                         help='''generate a playable strm file (useful for kodi)
                         for example: "ace 13 -f /home/ubuntu/media/mystream.strm''',
                         type=str, required=False)
 
-
-
 # variables
-player="vlc"
-url=argparser.parse_args().url[0]
-server=argparser.parse_args().server.split(":")
-server[1]=int(server[1])
-urlpattern=re.compile('^([0-9]|[a-z]){40}$', re.IGNORECASE)
-idpattern=re.compile('^([0-9]){1,2}$', re.IGNORECASE)
-linkpattern=re.compile('acestream://([0-9]|[a-z]){40,}', re.IGNORECASE)
-av_baseurl="https://arenavision.in/av"
-
+av_baseurl = "https://arenavision.in/av"
+server = "127.0.0.1:8000"
+player = "vlc"
+config_file = "/etc/ace/default.cfg"
+url = argparser.parse_args().url[0]
+urlpattern = re.compile('^([0-9]|[a-z]){40}$', re.IGNORECASE)
+idpattern = re.compile('^([0-9]){1,2}$', re.IGNORECASE)
+linkpattern = re.compile('acestream://([0-9]|[a-z]){40,}', re.IGNORECASE)
 
 #begin program
-
 def filemode(url):
     if argparser.parse_args().file:
         filepath = argparser.parse_args().file
@@ -61,7 +59,30 @@ def filemode(url):
     else:
         pass
 
+def process_config():
+    global server
+    try:
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        server = config['default']['server']
+    except Exception as e:
+        print(e)
+        print("WARNING config file not found or corrupt")
+
+    if argparser.parse_args().server:
+        try:
+            server = argparser.parse_args().server.split(":")
+        except Exception as e:
+            print(e)
+            print('ERROR, server syntax worng. Must be of kind "address:port"')
+            sys.exit(1)
+    else:
+        server = os.environ.get('ACEPROXY_SERVER', server).split(":")
+    server[1] = int(server[1])
+
+
 # test if aceproxy server is reacheable
+process_config()
 conntest = socket.socket()
 try:
 	conntest.connect(tuple(server))
