@@ -67,11 +67,13 @@ if which ace; then
   done
 else
   echo "installing ace..."
-  mkdir -p /etc/ace/
+  mkdir -p /etc/ace
   checkerror
   cp ./ace.py /usr/bin/ace
   checkerror
-  cp ./default.cfg /etc/ace/default.cfg
-  checkerror
+  if [ ! -f /etc/ace/default.cfg ]; then
+    cp ./default.cfg /etc/ace/default.cfg
+    checkerror
+  fi
   echo "install complete" && exit 0;
 fi
