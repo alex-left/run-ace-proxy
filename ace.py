@@ -21,18 +21,20 @@ argparser.add_argument("url",
                         You can put an id channel from Arenavision web (dryscrape library required), for example:
                         "ace 14"''',
                         type=str, nargs=1)
+
 argparser.add_argument("-s","--server",
                         help='''aceproxy server with format: "server:port", for example:
                         "--server myaceproxyserver:8080" or "-s 192.168.1.25:8000"
                         by default is "127.0.0.1:8080"''',
                         type=str, required=False)
+
 argparser.add_argument("-f","--file",
                         help='''generate a playable strm file (useful for kodi)
                         for example: "ace 13 -f /home/ubuntu/media/mystream.strm''',
                         type=str, required=False)
 
 # variables
-av_baseurl = "https://arenavision.in/av"
+av_baseurl = "http://arenavision.in/"
 server = "127.0.0.1:8000"
 player = "vlc"
 config_file = "/etc/ace/default.cfg"
@@ -60,11 +62,15 @@ def filemode(url):
         pass
 
 def process_config():
-    global server
     try:
+        global server
+        global av_baseurl
+        global player
         config = configparser.ConfigParser()
         config.read(config_file)
         server = config['default']['server']
+        av_baseurl = config['default']['av_baseurl']
+        player = config['default']['player']
     except Exception as e:
         print(e)
         print("WARNING config file not found or corrupt")
@@ -85,7 +91,7 @@ def process_config():
 process_config()
 conntest = socket.socket()
 try:
-	conntest.connect(tuple(server))
+    conntest.connect(tuple(server))
 except socket.error as e:
     print("Connection to aceproxy: %s failed: %s" % (str(server), e))
     print("Is aceproxy running and reacheable?")
@@ -94,13 +100,16 @@ conntest.close()
 
 # check if arg is a id channel, in this case, scrap arenavision web and get url stream
 if re.match(idpattern, url):
-    av_url=av_baseurl + url
+    if int(url):
+        if int(url) > 0 and int(url) < 10:
+            url = "0" + url
+    av_url = av_baseurl + url
     try:
         session = dryscrape.Session()
         session.visit(av_url)
         response = session.body()
-        match=re.search(linkpattern, response)
-        url=match.group(0)
+        match = re.search(linkpattern, response)
+        url = match.group(0)
     except Exception as e:
         print(e)
         print('''Can't get the url form Arenavision Web,
@@ -113,13 +122,13 @@ if re.match(idpattern, url):
 
 # check if arg is an complete url or acestream id, make the final url and launch vlc
 if url.startswith("acestream://"):
-    url=url.split("//")
-    streamid=url[1]
-    url="http://" + server[0] + ":" + str(server[1])  + "/pid/" + streamid + "/stream.mp4"
+    url = url.split("//")
+    streamid = url[1]
+    url = "http://" + server[0] + ":" + str(server[1]) + "/pid/" + streamid + "/stream.mp4"
     filemode(url)
     subprocess.Popen(['setsid', player, url], stdin=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 elif re.match(urlpattern, url):
-        url="http://" + server[0] + ":" + str(server[1]) + "/pid/" + url + "/stream.mp4"
+        url = "http://" + server[0] + ":" + str(server[1]) + "/pid/" + url + "/stream.mp4"
         filemode(url)
         subprocess.Popen(['setsid', player, url], stdin=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 else:

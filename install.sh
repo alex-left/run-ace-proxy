@@ -55,25 +55,25 @@ fi
 pip3 install dryscrape &> /dev/null
 if [ $? -ne 0 ]; then echo "WARNING - Instalation of dryscrape library failed"; fi
 
-
+echo "installing ace..."
 if which ace; then
-  while true; do
-      read -p "ace program exists, do you want overwrite it? (y/n)" yn
-      case $yn in
-          [Yy]* ) cp ace.py /usr/bin/ace; echo "install complete"; exit 0;;
-          [Nn]* ) exit 0;;
-          * ) echo "Please answer yes or no.";;
-      esac
-  done
-else
-  echo "installing ace..."
-  mkdir -p /etc/ace
-  checkerror
-  cp ./ace.py /usr/bin/ace
-  checkerror
-  if [ ! -f /etc/ace/default.cfg ]; then
-    cp ./default.cfg /etc/ace/default.cfg
+    echo "ace exists, reinstalling..."
+    cp ace.py /usr/bin/ace
+    mkdir -p /etc/ace
     checkerror
-  fi
+    cp ./ace.py /usr/bin/ace
+    checkerror
+    if [ -f /etc/ace/default.cfg ]; then
+        while true; do
+        read -p "ace config exist, do you want overwrite it to default values? (y/n)" yn
+          case $yn in
+              [Yy]* ) cp ./default.cfg /etc/ace/default.cfg; checkerror; break;;
+              [Nn]* ) break;;
+              * ) echo "Please answer yes or no.";;
+          esac
+        done
+    else
+      cp ./default.cfg /etc/ace/default.cfg
+    fi
   echo "install complete" && exit 0;
 fi
